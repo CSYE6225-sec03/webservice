@@ -157,6 +157,7 @@ class CreateUser(View):
             LastName = pay_load.get('last_name')
             if not Password:
                 Password = ""
+                #return HttpResponse(content_type='application/json; charset=utf-8',status=400)
             salt = bcrypt.gensalt()
             hashedPassword = bcrypt.hashpw(Password.encode("utf-8"), salt)
 
@@ -194,7 +195,11 @@ class CreateUser(View):
                 #     return HttpResponse(content = json.dumps(content), content_type='application/json; charset=utf-8',status=201)            
 
             else:
-                token = self.generate_token(key = EmailAddress)
+
+                Rawtoken = EmailAddress + ":" + str(hashedPassword)
+                print(Rawtoken)
+
+                token = self.generate_token(key = Rawtoken)
                 register = UserRegister(username=EmailAddress, first_name=FirstName, last_name=LastName, password = hashedPassword)
                 register.save()
 
@@ -268,7 +273,7 @@ class GetUpdateUser(View):
         # user = User.objects.filter(token = token).first()
         users = UserRegister.objects.all()
         for user in users:
-            ss = self.certify_token(key = str(user.username), token = str(token))
+            ss = self.certify_token(key = str(user.username) + ":" + str(user.password), token = str(token))
             if ss:
                 a = True
             # if user.token == token:
@@ -295,24 +300,43 @@ class GetUpdateUser(View):
             if i not in list_:
                 return HttpResponse(content_type='application/json; charset=utf-8', status=400)
         EmailAddress = pay_load.get('username')
-
-        flag = self.certify_token(key=EmailAddress, token=token)
+        if not EmailAddress:
+            return HttpResponse(content_type='application/json; charset=utf-8', status=400)
+        users = UserRegister.objects.all()
+        for user in users:
+            flag = self.certify_token(key=EmailAddress + ":" + str(user.password), token=token)
+            if flag:
+                break
         if flag:
             user = UserRegister.objects.filter(username = EmailAddress)
             FirstName = user[0].first_name
             LastName = user[0].last_name
             Password = user[0].password
+            if pay_load.get('first_name') != None:
+                FirstName = pay_load.get('first_name')
+            if pay_load.get('last_name') != None:
+                LastName = pay_load.get('last_name')
 
-            FirstName = pay_load.get('first_name')
-            LastName = pay_load.get('last_name')
-            Password = pay_load.get('password')
 
+            # FirstName = pay_load.get('first_name')
+            # LastName = pay_load.get('last_name')
 
-            if not Password:
-                Password = ""
+            PasswordNew = pay_load.get('password')
 
-            salt = bcrypt.gensalt()
-            hashedPassword = bcrypt.hashpw(Password.encode("utf-8"), salt)
+            PasswordOld = Password[2:-1]
+            print(PasswordNew)
+            print(PasswordOld)
+            if not PasswordNew:
+                PasswordNew = ""
+
+            if bcrypt.checkpw(PasswordNew.encode("utf-8"), PasswordOld.encode("utf-8")):
+                hashedPassword = PasswordOld.encode("utf-8")
+            else:
+                if not PasswordNew:
+                    PasswordNew = ""
+
+                salt = bcrypt.gensalt()
+                hashedPassword = bcrypt.hashpw(PasswordNew.encode("utf-8"), salt)
 
 
             # if pay_load.get('first_name') != None:
@@ -366,32 +390,16 @@ class GetUpdateUser(View):
             # })
         else:
             return HttpResponse(content_type='application/json; charset=utf-8', status=400)
-            # return JsonResponse({
-            #     'code':400,
-            #     'message':'bad request',
-            #     # 'content':res_list
-            # })
 
     def get(self, request, *args, **kwargs):
         #data = {}
         token = request.META.get('HTTP_TOKEN')
         users = UserRegister.objects.all()
         for user in users:
-            if self.certify_token(key = user.username, token = token):
+            if self.certify_token(key = str(user.username) + ":" + str(user.password), token = token):
                 users = UserRegister.objects.filter(username = user.username)
-        # res_list = []
-        # id = serializers.serialize("json", users[0].id)
+
         for user in users:
-            # res_list.append({
-            #     'id': user.id,
-            #     'first_name':user.first_name,
-            #     'last_name': user.last_name,
-            #     'username': user.username,
-            #     'account_created': user.account_created,
-            #     'account_updated': user.account_updated
-            # })
-
-
             data={
                 'id': str(user.id),
                 'first_name':user.first_name,
@@ -401,12 +409,6 @@ class GetUpdateUser(View):
                 'account_updated': str(user.account_updated)
             }
         return HttpResponse(content= json.dumps(data), content_type='application/json; charset=utf-8',status=200)
-        
-        # return JsonResponse({
-        #     'code':0,
-        #     'message':'search success',
-        #     'content':res_list
-        # })
 
 
 
@@ -438,19 +440,3 @@ class GetUpdateUser(View):
         except:
             return False
 
-        # token_str = base64.urlsafe_b64decode(token).decode('utf-8')
-        # token_list = token_str.split(':')
-        # if len(token_list) != 2:
-        #     return False
-        # ts_str = token_list[0]
-        # if float(ts_str) < time.time():
-        #     # token expired
-        #     return False
-        # known_sha1_tsstr = token_list[1]
-        # sha1 = hmac.new(key.encode("utf-8"),ts_str.encode('utf-8'),'sha1')
-        # calc_sha1_tsstr = sha1.hexdigest()
-        # if calc_sha1_tsstr != known_sha1_tsstr:
-        #     # token certification failed
-        #     return False 
-        # # token certification success
-        # return True

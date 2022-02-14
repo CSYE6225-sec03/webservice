@@ -9,20 +9,20 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=11, verbose_name="phoneMNumber")
 
 # class UserRegisterReadOnly(models.Model):
-#     id = models.UUIDField(primary_key=True)     # 创建一个主键
-#     account_created = models.DateTimeField(max_length=32, null = True, editable =)  #  用户名
-#     account_updated = models.DateTimeField(max_length=32, null = True)  # 密码
+#     id = models.UUIDField(primary_key=True)
+#     account_created = models.DateTimeField(max_length=32, null = True, editable =)
+#     account_updated = models.DateTimeField(max_length=32, null = True)
 
 # class UserRegisterWriteOnly(models.Model):
-#     id = models.UUIDField(primary_key=True)     # 创建一个主键
-#     password = models.CharField(max_length=32, null = True)  #  用户名
+#     id = models.UUIDField(primary_key=True)
+#     password = models.CharField(max_length=32, null = True)
 
 class UserRegister(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)     # 创建一个主键
-    first_name = models.CharField(max_length=32, null = True, blank=True)  #  用户名
-    last_name = models.CharField(max_length=32, null = True, blank=True)  # 密码
-    password = models.CharField(max_length=90, null = True, blank=True)  #  用户名
-    username = models.EmailField(null = True)   # 邮箱
-    account_created = models.DateTimeField(default = timezone.now)  #  用户名
-    account_updated = models.DateTimeField(default = timezone.now)  # 密码
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)     # id
+    first_name = models.CharField(max_length=32, null = True, blank=True)  #  first_name
+    last_name = models.CharField(max_length=32, null = True, blank=True)  # last_name
+    password = models.CharField(max_length=90, null = True, blank=True)  #  password
+    username = models.EmailField(null = True)   # username
+    account_created = models.DateTimeField(default = timezone.now)  #  account_created
+    account_updated = models.DateTimeField(default = timezone.now)  # account_updated
     # token = models.CharField(max_length=200, null = True, blank=True)
