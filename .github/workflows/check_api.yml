@@ -13,7 +13,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: Huawei12#$
-          MYSQL_DATABASE: MySQL80
+          MYSQL_DATABASE: login_signup
         ports: ['3306:3306']
 
     steps:
