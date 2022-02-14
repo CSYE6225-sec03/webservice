@@ -13,7 +13,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: Huawei12#$
-          MYSQL_DATABASE: MySQL80
+          MYSQL_DATABASE: login_signup
         ports: ['3306:3306']
 
     steps:
@@ -22,10 +22,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9.7
-      - name: Start Mysql
-        run: |
-          mysqld --install
-          net start mysql
+      # - name: Start Mysql
+      #   run: |
+      #     mysqld --install
+      #     net start mysql
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
