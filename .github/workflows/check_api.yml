@@ -8,6 +8,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: Huawei12#$
+          MYSQL_DATABASE: MySQL80
+        ports: ['3306:3306']
 
     steps:
       - uses: actions/checkout@v2
