@@ -197,7 +197,6 @@ class CreateUser(View):
             else:
 
                 Rawtoken = EmailAddress + ":" + str(hashedPassword)
-                print(Rawtoken)
 
                 token = self.generate_token(key = Rawtoken)
                 register = UserRegister(username=EmailAddress, first_name=FirstName, last_name=LastName, password = hashedPassword)
@@ -226,9 +225,6 @@ class CreateUser(View):
 
 
     def generate_token(self, key, expire=3600):
-        print(type(time.time()))
-        print(type(expire))
-
         ts_str = str(time.time() + expire)
         ts_byte = ts_str.encode("utf-8")
         sha1_tshexstr  = hmac.new(key.encode("utf-8"),ts_byte,'sha1').hexdigest() 
@@ -324,8 +320,6 @@ class GetUpdateUser(View):
             PasswordNew = pay_load.get('password')
 
             PasswordOld = Password[2:-1]
-            print(PasswordNew)
-            print(PasswordOld)
             if not PasswordNew:
                 PasswordNew = ""
 

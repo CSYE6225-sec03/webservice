@@ -22,6 +22,6 @@ urlpatterns = [
     path('healthz', views.testRequest),
     path('users/', views.UserViews.as_view()),
     path('get_token/', views.LoginViews.as_view()),
-    path('v1/user/', views.CreateUser.as_view()),
+    path('v1/user', views.CreateUser.as_view()),
     path('v1/user/self', views.GetUpdateUser.as_view())
 ]
