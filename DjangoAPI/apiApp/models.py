@@ -26,3 +26,12 @@ class UserRegister(models.Model):
     account_created = models.DateTimeField(default = timezone.now)  #  account_created
     account_updated = models.DateTimeField(default = timezone.now)  # account_updated
     # token = models.CharField(max_length=200, null = True, blank=True)
+
+
+class Pic(models.Model):
+    user_id = models.CharField(primary_key=True, max_length=50)     # id
+    id = models.UUIDField(default=uuid.uuid4, editable=False)     # id
+    file_name = models.CharField(max_length=50, null = True, blank=True)  #  first_name
+    url = models.CharField(max_length=200, null = True, blank=True)  # last_name
+    upload_date = models.DateTimeField(default = timezone.now)  #  account_created
+    

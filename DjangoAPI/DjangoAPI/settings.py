@@ -11,6 +11,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
+# open
+# path_ = '/home/ec2-user/1.txt'
+# list_ = []
+# for line in open(path_): 
+#     x = line.split("=")
+#     list_.append(x)
+    
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,9 +32,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@ml-455hayul2r=_g2$=4#zohp9hx_v%0^1dnwb#p_&-^c-ynh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -80,6 +89,8 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
+
+    # local MySQL
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'login_signup',
@@ -89,7 +100,19 @@ DATABASES = {
         'PORT': '3306',
     }
 
+    # AWS
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'csye6225',
+    #     'USER': str(list_[1][1][:-1]),
+    #     'PASSWORD': str(list_[2][1][:-1]),
+    #     'HOST': str(list_[0][1][:-1]),
+    #     'PORT': '3306',
+    # }
+
 }
+
+
 
 
 # Password validation
@@ -134,3 +157,15 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS_ACCESS_KEY_ID = ''
+# AWS_SECRET_ACCESS_KEY = ''
+
+# open
+# AWS_STORAGE_BUCKET_NAME = str(list_[3][1][:-1])
+
+
+
+
+DEFAULT_FILE_STORAGE = 'apiApp.custom_storage.MediaStorage'

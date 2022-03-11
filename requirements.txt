@@ -1,5 +1,9 @@
-Django==3.2.5
-bcrypt==3.2.0
-djangorestframework==3.13.1
-markdown==3.3.6
-mysqlclient==2.1.0
+Django
+bcrypt
+djangorestframework
+markdown
+cryptography
+sqlalchemy
+django-storages
+boto3
+Pillow
