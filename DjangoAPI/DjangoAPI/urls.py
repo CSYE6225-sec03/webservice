@@ -23,5 +23,9 @@ urlpatterns = [
     path('users/', views.UserViews.as_view()),
     path('get_token/', views.LoginViews.as_view()),
     path('v1/user', views.CreateUser.as_view()),
-    path('v1/user/self', views.GetUpdateUser.as_view())
+    path('v1/user/self', views.GetUpdateUser.as_view()),
+    path('v1/user/self/pic', views.CreatePic.as_view())
+    #path('v1/user/self/pic/', views.DeletePic.as_view()),
+    #path('v1/user/self/pic/', views.TestView.as_view()),
+    # path('v1/user/self/pica/', views.login_test)
 ]
