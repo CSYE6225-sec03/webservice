@@ -1,0 +1,58 @@
+aws cli：
+
+
+
+aws configure:
+aws configure --profile dev
+
+create vpc:
+	aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications ResourceType=vpc,Tags=[{Key=Name,Value=myCliVpc}]
+
+creat subset in a different availability zone in the same region in the same VPC:
+	aws ec2 create-subnet --vpc-id vpc-0825e7cb31477046d --cidr-block 10.0.1.0/24 --availability-zone=us-east-1a --tag-specifications ResourceType=subnet,Tags=[{Key=Name,Value=subset1}]
+
+create Internet Gateway:
+	aws ec2 create-internet-gateway --tag-specifications ResourceType=internet-gateway,Tags=[{Key=Name,Value=myCliIgw}]
+
+attach the Internet Gateway to the VPC:
+	aws ec2 attach-internet-gateway --internet-gateway-id igw-03248cda4ac79f3d1 --vpc-id vpc-0825e7cb31477046d
+
+create route table:
+	aws ec2 create-route-table --vpc-id vpc-0cdd18be87c3c3dec --tag-specifications ResourceType=route-table,Tags=[{Key=Name,Value=myCliRouteTable}]
+
+attach all subnets created to the route table:
+	aws ec2 associate-route-table --route-table-id rtb-03ce0d4f072fa45c3 --subnet-id subnet-04840c5e5654ae8e7
+
+create a public route in the public route table created above with destination CIDR block 0.0.0.0/0 and internet gateway created above as the target:
+	aws ec2 create-route --route-table-id rtb-03ce0d4f072fa45c3 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-0d744833b7fca752c
+
+use aws cloudFormation:
+aws cloudformation create-stack --stack-name vpc-2 --template-body file://csye6225-infra.json --parameters ParameterKey=AMINAME,ParameterValue="ami-07b06f5f45dcc727b" ParameterKey=S3BucketName,ParameterValue="csye6225.dev.chunjunhu.me" ParameterKey=HostedZoneResource,ParameterValue="dev.chunjunhu.me." ParameterKey=DBPassword,ParameterValue="****" ParameterKey=DBUsername,ParameterValue="csye6225" ParameterKey=VPCNAME,ParameterValue="myVPC-2" ParameterKey=VPCCIDR,ParameterValue="10.0.0.0/16" ParameterKey=IGWNAME,ParameterValue="myIGW-2" ParameterKey=PUBLICROUTETABLENAME,ParameterValue="myPRT-2" ParameterKey=subnetNAME01,ParameterValue="subnet1-2" ParameterKey=SubnetCIDR1,ParameterValue="10.0.1.0/24" ParameterKey=subnetNAME02,ParameterValue="subnet2-2" ParameterKey=SubnetCIDR2,ParameterValue="10.0.2.0/24" ParameterKey=subnetNAME03,ParameterValue="subnet3-2" ParameterKey=SubnetCIDR3,ParameterValue="10.0.3.0/24"
+
+--capabilities CAPABILITY_NAMED_IAM
+
+delete aws cloudForamtion stack:
+aws cloudformation delete-stack --stack-name my-stack
+
+Create AMI by packer:
+packer build -var-file vars.json ami.json
+
+Create Key Pair：
+aws ec2 create-key-pair --key-name KeyPair01 --key-type rsa --query "KeyMaterial" --output text > KeyPair01.pem
+
+Empty bucket:
+aws s3 rm s3://csye6225.dev.chunjunhu.me --recursive
+
+Pressure Test:
+while ($true) {curl http://dev.chunjunhu.me/healthz}
+
+GITHUB:
+
+github upstream:
+git remote add upstream ssh_link_example
+
+create new branch:
+git checkout -b assignment3
+
+在本地删除一个分支： git branch -d Branch1
+在github远程端删除一个分支： git push origin :Branch1   (分支名前的冒号代表删除)
