@@ -1,0 +1,30 @@
+"ApplicationBlueGreen": {
+    "Type": "AWS::CodeDeploy::Application",
+    "Properties":{
+      "ApplicationName":  "csye6225-webapp"
+    }
+},
+"BlueGreenDeploymentGroup": {
+    "Type": "AWS::CodeDeploy::DeploymentGroup",
+    "DependsOn": "ApplicationBlueGreen",
+    "Properties": {
+      "ApplicationName": {"Ref": "ApplicationBlueGreen"},
+      "AutoScalingGroups" : [ {"Ref" : "autoScalingGroupId" } ],
+
+      "Deployment" : {
+        "Description" : "Initial deployment",
+        "IgnoreApplicationStopFailures" : "true",
+        "Revision" : {
+          "RevisionType" : "S3",
+          "S3Location" : {
+            "Bucket" : "csye6225.codedeploybucket",
+            "Key" : "webservice",
+            "BundleType" : "Zip"
+          }
+        }
+      },
+      
+      "DeploymentGroupName": "csye6225-webapp-deployment",
+      "ServiceRoleArn": "arn:aws:iam::860803677466:role/CodeDeployServiceRole"
+    }
+},

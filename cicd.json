@@ -5,7 +5,7 @@
 
     "Resources": {
 
-        "CodeDeployRole": {
+        "CodeDeployServiceRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
                "AssumeRolePolicyDocument": {
@@ -20,7 +20,7 @@
                      "Action": [ "sts:AssumeRole" ]
                   } ]
                },
-               "RoleName": "CodeDeployRole",
+               "RoleName": "CodeDeployServiceRole",
                "Path": "/"
             }
         },
@@ -62,7 +62,7 @@
                      ]
                   } ]
                },
-               "Roles": [ {"Ref": "CodeDeployRole"} ],
+               "Roles": [ {"Ref": "CodeDeployServiceRole"} ],
                "Users": [ "ghactions-app" ]
             }
         },
@@ -78,17 +78,17 @@
                         "Effect": "Allow",
                         "Action": [
                             "codedeploy:RegisterApplicationRevision", 
-                            "codedeploy:GetApplicationRevision" 
+                            "codedeploy:GetApplicationRevision"
                         ],
                         "Resource": [
-                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:application:webservice" }
+                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:application:csye6225-webapp" }
                         ]
                     },
                     {
                         "Effect": "Allow",
                         "Action": [
                             "codedeploy:CreateDeployment",
-                            "codedeploy:GetDeployment" 
+                            "codedeploy:GetDeployment"
                         ],
                         "Resource": [ 
                             "*" 
@@ -107,10 +107,11 @@
                     }
                   ]
                 },
-                "Roles": [ {"Ref": "CodeDeployRole"} ],
+                "Roles": [ {"Ref": "CodeDeployServiceRole"} ],
                 "Users": [ "ghactions-app" ]
             }
         }
+
 
     },
 
