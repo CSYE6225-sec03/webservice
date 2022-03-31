@@ -716,6 +716,14 @@
                             [
                                 "#!/bin/bash",
                                 "cd /home/ec2-user",
+                                "sudo yum update",
+                                "sudo yum install ruby",
+                                "sudo yum install wget",
+                                "wget https://csye6225.codedeploybucket.s3.us-east-1.amazonaws.com/latest/install",
+                                "chmod +x ./install",
+                                "sudo ./install auto",
+                                "sudo service codedeploy-agent start",
+                                "sudo service codedeploy-agent status",
                                 {"Fn::Sub": "sudo echo 'hostname=${MyDB.Endpoint.Address}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'Dbname=${DBUsername}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'PWD=${DBPassword}' >> 1.txt"},
@@ -733,6 +741,22 @@
                         ]
                     }
                 }
+            }
+        },
+
+        "ApplicationBlueGreen": {
+            "Type": "AWS::CodeDeploy::Application",
+            "Properties":{
+              "ApplicationName":  "csye6225-webapp"
+            }
+          },
+          "BlueGreenDeploymentGroup": {
+            "Type": "AWS::CodeDeploy::DeploymentGroup",
+            "DependsOn": "ApplicationBlueGreen",
+            "Properties": {
+              "ApplicationName": {"Ref": "ApplicationBlueGreen"},
+              "DeploymentGroupName": "csye6225-webapp-deployment",
+              "ServiceRoleArn": "arn:aws:iam::860803677466:role/CodeDeployRole"
             }
         },
 

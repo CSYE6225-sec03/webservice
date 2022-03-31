@@ -2,7 +2,7 @@
 version: 0.0
 os: linux
 files:             
-  - source: ./webapp/target/ROOT.war
+  - source: /
     destination: /opt/tomcat/webapps
 hooks:
   ApplicationStop:
