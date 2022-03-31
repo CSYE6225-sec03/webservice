@@ -1,0 +1,127 @@
+{
+    "Description": "AWS CloudFormation Template",
+
+    "AWSTemplateFormatVersion": "2010-09-09",
+
+    "Resources": {
+
+        "CodeDeployRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+               "AssumeRolePolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ {
+                     "Effect": "Allow",
+                     "Principal": {
+                        "Service": [ 
+                            { "Fn::Sub": "codedeploy.${AWS::Region}.amazonaws.com" }
+                        ]
+                     },
+                     "Action": [ "sts:AssumeRole" ]
+                  } ]
+               },
+               "RoleName": "CodeDeployRole",
+               "Path": "/"
+            }
+        },
+
+        "GhUploadToS3Policy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+               "PolicyName": "GH-Upload-To-S3-Policy",
+               "PolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ {
+                     "Effect": "Allow",
+                     "Action": [
+                        "s3:GetObjectAcl",
+                        "s3:GetObject",
+                        "s3:ListBucket",
+                        "s3:PutObject"
+                     ],
+                     "Resource": [
+                        {
+                            "Fn::Sub": [ 
+                                "${prefix}${S3BucketName}", 
+                                {
+                                    "prefix": "arn:aws:s3:::",
+                                    "S3BucketName": {"Ref" : "S3BucketName" }
+                                }
+                            ]
+                        },
+
+                        {
+                            "Fn::Sub": [ 
+                                "${prefix}${S3BucketName}/*", 
+                                {
+                                    "prefix": "arn:aws:s3:::",
+                                    "S3BucketName": {"Ref" : "S3BucketName" }
+                                }
+                            ]
+                        }
+                     ]
+                  } ]
+               },
+               "Roles": [ {"Ref": "CodeDeployRole"} ],
+               "Users": [ "ghactions-app" ]
+            }
+        },
+
+        "GhCodeDeployPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+               "PolicyName": "CodeDeploy",
+               "PolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ 
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "codedeploy:RegisterApplicationRevision", 
+                            "codedeploy:GetApplicationRevision" 
+                        ],
+                        "Resource": [
+                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:application:webservice" }
+                        ]
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "codedeploy:CreateDeployment",
+                            "codedeploy:GetDeployment" 
+                        ],
+                        "Resource": [ 
+                            "*" 
+                        ] 
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": [ 
+                            "codedeploy:GetDeploymentConfig" 
+                        ], 
+                        "Resource": [ 
+                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentconfig:CodeDeployDefault.OneAtATime" },
+                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentconfig:CodeDeployDefault.HalfAtATime" },
+                            { "Fn::Sub": "arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:deploymentconfig:CodeDeployDefault.AllAtOnce" }
+                        ] 
+                    }
+                  ]
+                },
+                "Roles": [ {"Ref": "CodeDeployRole"} ],
+                "Users": [ "ghactions-app" ]
+            }
+        }
+
+    },
+
+    "Parameters": {
+        
+        "S3BucketName": {
+            "Description" : "S3BucketName",
+            "Default": "csye6225.codedeploybucket",
+            "Type": "String"
+        }
+
+    }
+}
+
