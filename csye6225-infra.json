@@ -716,6 +716,14 @@
                             [
                                 "#!/bin/bash",
                                 "cd /home/ec2-user",
+                                "sudo yum update",
+                                "sudo yum install ruby",
+                                "sudo yum install wget",
+                                "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install",
+                                "chmod +x ./install",
+                                "sudo ./install auto",
+                                "sudo service codedeploy-agent start",
+                                "sudo service codedeploy-agent status",
                                 {"Fn::Sub": "sudo echo 'hostname=${MyDB.Endpoint.Address}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'Dbname=${DBUsername}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'PWD=${DBPassword}' >> 1.txt"},
@@ -735,6 +743,10 @@
                 }
             }
         },
+
+
+
+
 
         "autoScalingGroupId": {
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
@@ -774,6 +786,98 @@
             }
         },
 
+        "WebserviceCodeDeployServiceRole" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "RoleName" : "WebserviceCodeDeployServiceRole",
+                "Description" : "Role for EC2 instances that will be used to host web application",
+                "AssumeRolePolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [ 
+                                { "Fn::Sub": "codedeploy.${AWS::Region}.amazonaws.com" }
+                            ]
+                        },
+                        "Action": [ "sts:AssumeRole" ]
+                    } ]
+                },
+                "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"]
+            }
+        },
+
+        "CodeDeployS3Policy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+               "PolicyName": "CodeDeploy-S3-Policy",
+               "PolicyDocument": {
+                  "Version" : "2012-10-17",
+                  "Statement": [ {
+                     "Effect": "Allow",
+                     "Action": [
+                        "s3:Get*",
+                        "s3:List*",
+                        "s3:PutObject"
+                     ],
+                     "Resource": [
+                        {
+                            "Fn::Sub": [ 
+                                "${prefix}${CICDS3BucketName}", 
+                                {
+                                    "prefix": "arn:aws:s3:::",
+                                    "S3BucketName": {"Ref" : "CICDS3BucketName" }
+                                }
+                            ]
+                        },
+
+                        {
+                            "Fn::Sub": [ 
+                                "${prefix}${CICDS3BucketName}/*", 
+                                {
+                                    "prefix": "arn:aws:s3:::",
+                                    "S3BucketName": {"Ref" : "CICDS3BucketName" }
+                                }
+                            ]
+                        },
+
+                        { "Fn::Sub": "arn:aws:s3:::aws-codedeploy-${AWS::Region}/*" }
+                     ]
+                  } ]
+               },
+               "Roles": [ {"Ref": "WebserviceCodeDeployServiceRole"} ]
+            }
+        },
+
+        "CodeDeployApplication": {
+            "Type": "AWS::CodeDeploy::Application",
+            "Properties":{
+              "ApplicationName":  "csye6225-webapp"
+            }
+        },
+
+        "CodeDeployDeploymentGroup": {
+            "Type": "AWS::CodeDeploy::DeploymentGroup",
+            "Properties": {
+              "DeploymentGroupName": "csye6225-webapp-deployment",
+              "ApplicationName": {"Ref": "CodeDeployApplication"},
+              "AutoScalingGroups" : [ {"Ref" : "autoScalingGroupId" } ],
+              "ServiceRoleArn": { "Fn::GetAtt" : ["WebserviceCodeDeployServiceRole", "Arn"] },
+              "DeploymentStyle" : {
+                  "DeploymentOption" : "WITHOUT_TRAFFIC_CONTROL",
+                  "DeploymentType" : "IN_PLACE"
+              },
+              "DeploymentConfigName" : "CodeDeployDefault.AllAtOnce",
+              "AutoRollbackConfiguration" : { "Enabled" : true, "Events" : [ "DEPLOYMENT_FAILURE" ]},
+              "Ec2TagFilters": [
+                  {
+                      "Key": "Name",
+                      "Value": {"Fn::Sub":"${AWS::StackName}-asg"},
+                      "Type": "KEY_AND_VALUE"
+                  }
+              ]
+            }
+        },
 
         "WebServerScaleUpPolicy": {
             "Type": "AWS::AutoScaling::ScalingPolicy",
@@ -1022,6 +1126,11 @@
             "Description" : "The Internet Gateway name",
             "Type": "String",
             "Default": "prod.chunjunhu.me."
+        },
+        "CICDS3BucketName": {
+            "Description" : "CICD S3BucketName",
+            "Default": "csye6225.codedeploybucket",
+            "Type": "String"
         }
     }
 }

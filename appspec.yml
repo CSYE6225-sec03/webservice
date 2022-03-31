@@ -2,22 +2,14 @@
 version: 0.0
 os: linux
 files:             
-  - source: ./webapp/target/ROOT.war
-    destination: /opt/tomcat/webapps
+  - source: /
+    destination: /home/ec2-user
 hooks:
-  ApplicationStop:
-    - location: ./applicationStop.sh
-      timeout: 180
-      runas: centos
   BeforeInstall:
-    - location: ./beforeInstall.sh
+    - location: ./codedeploy/beforeInstall.sh
       timeout: 180
       runas: centos
-  AfterInstall:
-   - location: ./afterInstall.sh
-     timeout: 180
-     runas: centos
   ApplicationStart:
-    - location: ./applicationStart.sh
+    - location: ./codedeploy/applicationStart.sh
       timeout: 180
       runas: centos
