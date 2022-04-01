@@ -5,6 +5,7 @@ yum erase codedeploy-agent -y
 
 
 cd /home/ec2-user/
+ls -a
 sudo rm -rf webservice
 
 sudo mkdir webservice
