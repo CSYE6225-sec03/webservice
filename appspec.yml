@@ -3,7 +3,7 @@ version: 0.0
 os: linux
 files:             
   - source: webservice
-    destination: /home/ec2-user/webservice/
+    destination: /home/ec2-user/
 hooks:
   BeforeInstall:
     - location: ./codedeploy/beforeInstall.sh

@@ -15,7 +15,7 @@ sudo mkdir webservice
 cd /home/ec2-user/webservice
 ls -a
 
-sudo opt wdadwadawdawada
+sudo python3 manage.py makemigrations
 
 sudo yum -y update
 
