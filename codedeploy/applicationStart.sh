@@ -1,8 +1,10 @@
 #!/bin/bash
 
+
+cd /home/ec2-user/webservice/webservice
+ls -a
 cd /home/ec2-user/webservice
 ls -a
-
 echo "522222222222222222222222"
 sudo pip3 install -r requirements.txt
 sudo pip3 install pymysql
