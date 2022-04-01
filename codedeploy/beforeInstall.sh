@@ -1,5 +1,11 @@
 #!/bin/bash
+CODEDEPLOY_BIN="/opt/codedeploy-agent/bin/codedeploy-agent"
+$CODEDEPLOY_BIN stop
+yum erase codedeploy-agent -y
+
+
 cd /home/ec2-user/
+sudo rm -rf webservice
 sudo yum -y update
 
 # Python dependencies

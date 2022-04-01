@@ -2,18 +2,18 @@
 version: 0.0
 os: linux
 files:             
-  - source: /
-    destination: /home/ec2-user
+  - source: webservice
+    destination: /home/ec2-user/
 hooks:
   BeforeInstall:
     - location: ./codedeploy/beforeInstall.sh
       timeout: 300
-      runas: centos
+      runas: ec2-user
   ApplicationStart:
     - location: ./codedeploy/applicationStart.sh
       timeout: 300
-      runas: centos
+      runas: ec2-user
   ApplicationStop:
     - location: ./codedeploy/applicationStop.sh
       timeout: 300
-      runas: centos
+      runas: ec2-user
