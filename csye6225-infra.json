@@ -546,7 +546,8 @@
                   } ]
                },
                "RoleName": "EC2-CSYE6225",
-               "Path": "/"
+               "Path": "/",
+               "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"]
             }
         },
         "RolePolicies": {
@@ -717,7 +718,7 @@
                                 "#!/bin/bash",
                                 "cd /home/ec2-user",
                                 "sudo yum update",
-                                "sudo yum install ruby",
+                                "sudo yum install ruby -y",
                                 "sudo yum install wget",
                                 "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install",
                                 "chmod +x ./install",
@@ -786,6 +787,8 @@
             }
         },
 
+
+
         "WebserviceCodeDeployServiceRole" : {
             "Type" : "AWS::IAM::Role",
             "Properties" : {
@@ -810,42 +813,45 @@
         "CodeDeployS3Policy": {
             "Type": "AWS::IAM::Policy",
             "Properties": {
-               "PolicyName": "CodeDeploy-S3-Policy",
-               "PolicyDocument": {
-                  "Version" : "2012-10-17",
-                  "Statement": [ {
-                     "Effect": "Allow",
-                     "Action": [
-                        "s3:Get*",
-                        "s3:List*",
-                        "s3:PutObject"
-                     ],
-                     "Resource": [
-                        {
-                            "Fn::Sub": [ 
-                                "${prefix}${CICDS3BucketName}", 
-                                {
-                                    "prefix": "arn:aws:s3:::",
-                                    "S3BucketName": {"Ref" : "CICDS3BucketName" }
-                                }
-                            ]
-                        },
+                "PolicyName": "CodeDeploy-S3-Policy",
+                "PolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [ {
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:Get*",
+                            "s3:List*",
+                            "s3:PutObject"
+                        ],
+                        "Resource": [
+                            {
+                                "Fn::Sub": [ 
+                                    "${prefix}${CICDS3BucketName}", 
+                                    {
+                                        "prefix": "arn:aws:s3:::",
+                                        "S3BucketName": {"Ref" : "CICDS3BucketName" }
+                                    }
+                                ]
+                            },
 
-                        {
-                            "Fn::Sub": [ 
-                                "${prefix}${CICDS3BucketName}/*", 
-                                {
-                                    "prefix": "arn:aws:s3:::",
-                                    "S3BucketName": {"Ref" : "CICDS3BucketName" }
-                                }
-                            ]
-                        },
+                            {
+                                "Fn::Sub": [ 
+                                    "${prefix}${CICDS3BucketName}/*", 
+                                    {
+                                        "prefix": "arn:aws:s3:::",
+                                        "S3BucketName": {"Ref" : "CICDS3BucketName" }
+                                    }
+                                ]
+                            },
 
-                        { "Fn::Sub": "arn:aws:s3:::aws-codedeploy-${AWS::Region}/*" }
-                     ]
-                  } ]
-               },
-               "Roles": [ {"Ref": "WebserviceCodeDeployServiceRole"} ]
+                            { "Fn::Sub": "arn:aws:s3:::aws-codedeploy-${AWS::Region}/*" }
+                        ]
+                    } ]
+                },
+                "Roles": [ 
+                    {"Ref": "WebserviceCodeDeployServiceRole"},
+                    {"Ref": "RootRole"}
+                ]
             }
         },
 

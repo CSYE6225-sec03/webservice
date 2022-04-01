@@ -7,9 +7,13 @@ files:
 hooks:
   BeforeInstall:
     - location: ./codedeploy/beforeInstall.sh
-      timeout: 180
+      timeout: 300
       runas: centos
   ApplicationStart:
     - location: ./codedeploy/applicationStart.sh
-      timeout: 180
+      timeout: 300
+      runas: centos
+  ApplicationStop:
+    - location: ./codedeploy/applicationStop.sh
+      timeout: 300
       runas: centos
