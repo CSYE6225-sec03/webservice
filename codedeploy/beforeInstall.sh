@@ -6,6 +6,8 @@ yum erase codedeploy-agent -y
 
 cd /home/ec2-user/
 sudo rm -rf webservice
+
+sudo mkdir webservice
 sudo yum -y update
 
 # Python dependencies
