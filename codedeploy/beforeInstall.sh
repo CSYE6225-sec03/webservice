@@ -10,10 +10,10 @@ sudo rm -rf webservice
 echo "522222222222222222222222"
 ls -a
 
-echo "111111111111111111111"
-sudo mkdir webservice
-cd /home/ec2-user/webservice
-ls -a
+# echo "111111111111111111111"
+# sudo mkdir webservice
+# cd /home/ec2-user/webservice
+# ls -a
 
 # sudo python3 manage.py makemigrations
 
