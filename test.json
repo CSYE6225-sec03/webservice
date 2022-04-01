@@ -28,3 +28,25 @@
       "ServiceRoleArn": "arn:aws:iam::860803677466:role/CodeDeployServiceRole"
     }
 },
+
+
+
+"S3Role": {
+  "Type": "AWS::IAM::Role",
+  "Properties": {
+     "AssumeRolePolicyDocument": {
+        "Version" : "2012-10-17",
+        "Statement": [ {
+           "Effect": "Allow",
+           "Principal": {
+              "Service": [ "ec2.amazonaws.com" ]
+           },
+           "Action": [ "sts:AssumeRole" ]
+        } ]
+     },
+     "RoleName": "EC2-CSYE6225",
+     "Path": "/",
+
+      "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"]
+  }
+},
