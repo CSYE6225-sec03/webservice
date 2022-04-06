@@ -857,25 +857,6 @@
         },
 
 
-        "CloudWatchAgentAdminRole" : {
-            "Type" : "AWS::IAM::Role",
-            "Properties" : {
-                "RoleName" : "CloudWatchAgentAdminRole",
-                "Description" : "Role for EC2 instances that will be used to host web application",
-                "AssumeRolePolicyDocument": {
-                    "Version" : "2012-10-17",
-                    "Statement": [ {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": [ "ec2.amazonaws.com" ]
-                        },
-                        "Action": [ "sts:AssumeRole" ]
-                    } ]
-                },
-                "Path": "/",
-                "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"]
-            }
-        },
 
         "CloudWatchAgentAdminPolicy": {
             "Type": "AWS::IAM::Policy",
@@ -909,8 +890,7 @@
                         }
                     ]
                 },
-                "Roles": [ 
-                    {"Ref": "CloudWatchAgentAdminRole"},
+                "Roles": [
                     {"Ref": "RootRole"}
                 ]
             }
