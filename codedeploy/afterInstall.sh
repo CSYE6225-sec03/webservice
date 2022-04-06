@@ -3,10 +3,18 @@
 ls -a
 cd opt
 ls -a
+cd aws
+ls -a
+
+
+cd /home/ec2-user/
+
+ls -a
+
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -a fetch-config \
     -m ec2 \
-    -c file:/opt/cloudwatch-config.json \
+    -c file:/home/ec2-user/cloudwatch-config.json \
     -s
 
 
