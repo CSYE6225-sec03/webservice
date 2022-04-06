@@ -9,6 +9,10 @@ hooks:
     - location: ./codedeploy/beforeInstall.sh
       timeout: 300
       runas: ec2-user
+  AfterInstall:
+  - location: ./codedeploy/afterInstall.sh
+    timeout: 300
+    runas: ec2-user
   ApplicationStart:
     - location: ./codedeploy/applicationStart.sh
       timeout: 300
