@@ -24,7 +24,7 @@
                     "Fn::Select" : [ 
                       "0", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -50,7 +50,7 @@
                     "Fn::Select" : [ 
                       "1", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -76,7 +76,7 @@
                     "Fn::Select" : [ 
                       "2", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -102,7 +102,7 @@
                     "Fn::Select" : [ 
                       "3", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -128,7 +128,7 @@
                     "Fn::Select" : [ 
                       "4", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -180,7 +180,7 @@
                     "Fn::Select" : [ 
                       "1", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
@@ -206,7 +206,7 @@
                     "Fn::Select" : [ 
                       "2", 
                       { 
-                        "Fn::GetAZs" : "" 
+                        "Fn::GetAZs" : ""
                       } 
                     ]
                 },
