@@ -1,0 +1,56 @@
+"launchConfigurationId": {
+    "Type" : "AWS::AutoScaling::LaunchConfiguration",
+    "Properties" : {
+        "LaunchConfigurationName" : "asg_launch_config",
+        "PlacementTenancy" : "default",
+        "InstanceType" : "t2.micro",
+        "AssociatePublicIpAddress" : "true",
+        "IamInstanceProfile" : {"Ref": "RootInstanceProfile"},
+        "ImageId" : {"Ref": "AMINAME"},
+        "SecurityGroups" : [ {"Ref": "InstanceSecurityGroup"} ],
+        "KeyName" : "KeyPair01",
+        "BlockDeviceMappings" : [
+            {
+            "DeviceName": "/dev/xvda",
+            "Ebs": {
+                "VolumeType": "gp2",
+                "DeleteOnTermination": "true",
+                "VolumeSize": "20"
+            }
+            }
+        ],
+        "EbsOptimized" : false,
+        "UserData": { 
+            "Fn::Base64": { 
+                "Fn::Join": ["\n",
+                    [
+                        "#!/bin/bash",
+                        "cd /home/ec2-user",
+                        "sudo yum update",
+                        "sudo yum install ruby -y",
+                        "sudo yum install wget",
+                        "wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install",
+                        "chmod +x ./install",
+                        "sudo ./install auto",
+                        "sudo service codedeploy-agent start",
+                        "sudo service codedeploy-agent status",
+                        {"Fn::Sub": "sudo echo 'hostname=${MyDB.Endpoint.Address}' >> 1.txt"},
+                        {"Fn::Sub": "sudo echo 'Dbname=${DBUsername}' >> 1.txt"},
+                        {"Fn::Sub": "sudo echo 'PWD=${DBPassword}' >> 1.txt"},
+                        {"Fn::Sub": "sudo echo 'BucketName=${S3BucketName}' >> 1.txt"},
+                        "cd /home/ec2-user/webservice/DjangoAPI",
+                        {"Fn::Sub": "sudo echo 'a=1' >> 2.txt"},
+                        "sudo python3 manage.py makemigrations",
+                        "sudo python3 manage.py migrate",
+                        "cd /home/ec2-user",
+                        "sudo cp webservice.service /usr/lib/systemd/system",
+                        "sudo systemctl daemon-reload",
+                        "sudo systemctl enable webservice.service",
+                        "sudo systemctl start webservice.service",
+                        "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/home/ec2-user/cloudwatch-config.json -s"
+                    ]
+                ]
+            }
+        }
+    }
+},
