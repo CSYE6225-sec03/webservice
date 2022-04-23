@@ -67,3 +67,11 @@ Enter commands "python manage.py test" in DjangoAPI folder
     ```bash
     aws cloudformation delete-stack --stack-name my-stack
     ```
+
+# Instructions for setting up certification:
+1. AWS CLI
+    ```bash
+    aws acm import-certificate --certificate fileb://prod_chunjunhu_me.crt ^
+    --certificate-chain fileb://prod_chunjunhu_me.ca-bundle ^
+    --private-key fileb://private.key
+    ```

@@ -376,7 +376,7 @@
                "GroupDescription" : "Create application security group",
                "VpcId" : {"Ref" : "VPC"},
                "SecurityGroupIngress" : [
-                    { "IpProtocol" : "tcp", "FromPort" : 22, "ToPort" : 22, "SourceSecurityGroupId": {"Ref": "LoadBalancerSecurityGroup"}},
+                    { "IpProtocol" : "tcp", "FromPort" : 22, "ToPort" : 22, "CidrIp" : "0.0.0.0/0"},
                     { "IpProtocol" : "tcp", "FromPort" : 8000, "ToPort" : 8000, "SourceSecurityGroupId": {"Ref": "LoadBalancerSecurityGroup"}}
                 ],
                 "Tags":[{"Key" : "Name", "Value": "application"}]
@@ -494,7 +494,34 @@
 
 
 
-
+        "myKey02": {
+            "Type": "AWS::KMS::Key",
+            "Properties" : {
+                "KeyPolicy": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "Enable IAM User Permissions",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root" }
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "Enable Service Role",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root" }
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
         
         "MyDB": {
 
@@ -526,7 +553,9 @@
                 ],
                 "DBParameterGroupName":{
                     "Ref": "RDSDBParameterGroup"
-                }
+                },
+                "StorageEncrypted" : "true",
+                "KmsKeyId" : {"Ref": "myKey02"}
             }
         },
 
@@ -690,27 +719,92 @@
         },
 
 
-        "launchConfigurationId": {
-            "Type" : "AWS::AutoScaling::LaunchConfiguration",
+        "myHTTPSLoadBalancerListener":{
+            "Type":"AWS::ElasticLoadBalancingV2::Listener",
+            "Properties":{
+              "DefaultActions":[
+                {
+                  "TargetGroupArn":{
+                    "Ref":"myTargetGroup"
+                  },
+                  "Type":"forward"
+                }
+              ],
+              "LoadBalancerArn":{
+                "Ref":"myLoadBalancer"
+              },
+              "Port":443,
+              "Protocol":"HTTPS",
+              "SslPolicy" : "ELBSecurityPolicy-2016-08",
+              "Certificates" : [ {
+                "CertificateArn" : {"Ref":"certificateArnName"}
+              }]
+            }
+        },
+
+        "myKey01": {
+            "Type": "AWS::KMS::Key",
             "Properties" : {
-                "LaunchConfigurationName" : "asg_launch_config",
-                "PlacementTenancy" : "default",
-                "InstanceType" : "t2.micro",
-                "AssociatePublicIpAddress" : "true",
-                "IamInstanceProfile" : {"Ref": "RootInstanceProfile"},
-                "ImageId" : {"Ref": "AMINAME"},
-                "SecurityGroups" : [ {"Ref": "InstanceSecurityGroup"} ],
-                "KeyName" : "KeyPair01",
-                "BlockDeviceMappings" : [
+                "KeyPolicy": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "Enable IAM User Permissions",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root" }
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "Enable Service Role",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling" }
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        }
+                    ]
+                }
+            }
+        },
+
+
+        "myLaunchTemplate":{
+            "Type":"AWS::EC2::LaunchTemplate",
+            "Properties":{
+              "LaunchTemplateName":{
+                "Fn::Sub":"${AWS::StackName}-launch-template-for-auto-scaling"
+              },
+              "LaunchTemplateData":{
+                "IamInstanceProfile" : {
+                    "Arn" : {"Fn::GetAtt" : ["RootInstanceProfile", "Arn"] }
+                },
+                "BlockDeviceMappings" : [ 
                     {
-                    "DeviceName": "/dev/xvda",
-                    "Ebs": {
-                        "VolumeType": "gp2",
-                        "DeleteOnTermination": "true",
-                        "VolumeSize": "20"
-                    }
+                        "DeviceName" : "/dev/xvda",
+                        "Ebs": {
+                            "VolumeType": "gp2",
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": "20",
+                            "Encrypted": true,
+                            "KmsKeyId" : {"Ref": "myKey01"}
+                        }
                     }
                 ],
+                "SecurityGroupIds": [
+                    {
+                        "Fn::GetAtt": [
+                        "InstanceSecurityGroup",
+                        "GroupId"
+                        ]
+                    }
+                ],
+                "ImageId":{"Ref": "AMINAME"},
+                "InstanceType":"t2.micro",
+                "KeyName":"KeyPair01",
                 "EbsOptimized" : false,
                 "UserData": { 
                     "Fn::Base64": { 
@@ -730,6 +824,7 @@
                                 {"Fn::Sub": "sudo echo 'Dbname=${DBUsername}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'PWD=${DBPassword}' >> 1.txt"},
                                 {"Fn::Sub": "sudo echo 'BucketName=${S3BucketName}' >> 1.txt"},
+                                "wget https://truststore.pki.us-gov-west-1.rds.amazonaws.com/global/global-bundle.pem",
                                 "cd /home/ec2-user/webservice/DjangoAPI",
                                 {"Fn::Sub": "sudo echo 'a=1' >> 2.txt"},
                                 "sudo python3 manage.py makemigrations",
@@ -744,6 +839,7 @@
                         ]
                     }
                 }
+              }
             }
         },
 
@@ -758,7 +854,10 @@
                 "Cooldown" : "60",
                 "DesiredCapacity" : "3",
                 "HealthCheckType" : "EC2",
-                "LaunchConfigurationName" : {"Ref": "launchConfigurationId"},
+                "LaunchTemplate": {
+                    "LaunchTemplateId": { "Ref": "myLaunchTemplate" },
+                    "Version": { "Fn::GetAtt": [ "myLaunchTemplate", "LatestVersionNumber" ] }
+                },
                 "MinSize" : "1",
                 "MaxSize" : "5",
                 "MetricsCollection" : [ {
@@ -1133,6 +1232,12 @@
             "Description" : "The AMI name",
             "Type": "String",
             "Default": "ami-07b06f5f45dcc727b"
+  
+        },
+        "certificateArnName": {
+            "Description" : "The AMI name",
+            "Type": "String",
+            "Default": "arn:aws:acm:us-east-1:860803677466:certificate/69485597-da69-4d62-ae25-b9397710ce97"
   
         },
 
